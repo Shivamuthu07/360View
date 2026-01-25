@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>360 View | Growth Hacking & Cinematic Marketing</title>
+    <link rel="icon" type="image/png" href="Favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Lexend:wght@800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        :root {
+            --accent-red: #B20000;
+            --bright-red: #FF0000;
+            --obsidian: #050505;
+            --matte-black: #000000;
+            --text-silver: #E0E0E0;
+            --border: rgba(255, 0, 0, 0.2);
+        }
+
+        /* --- MINIMAL AESTHETIC CURSOR --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none !important;
+        }
+
+        #cursor-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--bright-red);
+            position: fixed;
+            border-radius: 50%;
+            z-index: 10001;
+            pointer-events: none;
+        }
+
+        #cursor-outline {
+            width: 30px;
+            height: 30px;
+            border: 1px solid var(--bright-red);
+            position: fixed;
+            border-radius: 50%;
+            z-index: 10000;
+            pointer-events: none;
+            transition: transform 0.15s ease-out;
+            mix-blend-mode: difference;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--matte-black);
+            color: var(--text-silver);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 15px 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(5, 5, 5, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 0, 0, 0.1);
+        }
+
+        .nav-logo img {
+            height: 50px;
+            width: auto;
+            display: block;
+            filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.3));
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-left: 35px;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background: var(--bright-red);
+            transition: 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--bright-red);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Mobile Hamburger */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            z-index: 1002;
+        }
+
+        .bar {
+            width: 25px;
+            height: 2px;
+            background-color: #fff;
+            margin: 3px 0;
+            transition: 0.4s;
+        }
+
+        /* Mobile Menu Panel */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            height: 100vh;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+            z-index: 1001;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu a {
+            font-family: 'Lexend', sans-serif;
+            font-size: 32px;
+            margin: 20px 0;
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+        }
+
+        /* --- HERO --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Center horizontally */
+            padding: 0 10%;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            /* Center text */
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            /* Slightly wider for centered layout */
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-family: 'Lexend', sans-serif;
+            font-size: clamp(40px, 10vw, 100px);
+            line-height: 0.9;
+            letter-spacing: -3px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        .red-gradient-text {
+            background: linear-gradient(to right, #fff, var(--bright-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 3D Canvas Container */
+        #canvas3d {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.6;
+        }
+
+        /* --- SECTIONS --- */
+        section {
+            padding: 120px 10%;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-header {
+            margin-bottom: 60px;
+        }
+
+        .section-header p {
+            color: var(--bright-red);
+            font-weight: 700;
+            letter-spacing: 3px;
+            font-size: 13px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .section-header h2 {
+            font-family: 'Lexend', sans-serif;
+            font-size: 42px;
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        /* --- SERVICES GRID --- */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            background: rgba(10, 10, 10, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 0, 0, 0.05), transparent);
+            opacity: 0;
+            transition: 0.4s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-red);
+            box-shadow: 0 10px 40px rgba(178, 0, 0, 0.1);
+        }
+
+        .service-card:hover::before {
+            opacity: 1;
+        }
+
+        .service-card h3 {
+            font-family: 'Lexend', sans-serif;
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        .service-card p {
+            color: #999;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* --- MARKET INTEL (INFOGRAPHIC STYLE) --- */
+        .intel-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 50px;
+            background: linear-gradient(to right, #080808, #030303);
+            padding: 60px;
+            border-left: 3px solid var(--bright-red);
+        }
+
+        .intel-item {
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .intel-item h4 {
+            color: #fff;
+            margin-bottom: 15px;
+            font-family: 'Lexend';
+            font-size: 20px;
+        }
+
+        .intel-item span {
+            color: var(--bright-red);
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        /* --- EQUIPMENT GRID --- */
+        .gear-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .gear-card {
+            position: relative;
+            height: 350px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            /* Darker border */
+        }
+
+        .gear-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%);
+            opacity: 0.6;
+            transition: 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .gear-card:hover .gear-img {
+            filter: grayscale(0%);
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        /* --- CONTACT --- */
+        .contact-cta {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-top: 50px;
+            flex-wrap: wrap;
+        }
+
+        .social-link {
+            text-decoration: none;
+            text-align: center;
+            transition: 0.4s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .icon-glass {
+            width: 80px;
+            height: 80px;
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .icon-glass::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+            pointer-events: none;
+        }
+
+        .social-link svg {
+            width: 40px;
+            height: 40px;
+            transition: 0.3s;
+            fill: #fff;
+        }
+
+        /* Hover Effects */
+        .social-link:hover .icon-glass {
+            transform: translateY(-10px) scale(1.05);
+            background: rgba(30, 30, 30, 0.8);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* WhatsApp Hover */
+        .social-link:hover .wa-icon {
+            fill: #25D366;
+            filter: drop-shadow(0 0 15px rgba(37, 211, 102, 0.6));
+        }
+
+        .social-link:hover .icon-glass.wa-glass {
+            border-color: rgba(37, 211, 102, 0.3);
+            box-shadow: 0 15px 40px rgba(37, 211, 102, 0.2);
+        }
+
+        /* Instagram Hover */
+        .social-link:hover .ig-icon {
+            fill: url(#ig-gradient);
+            filter: drop-shadow(0 0 15px rgba(225, 48, 108, 0.6));
+        }
+
+        .social-link:hover .icon-glass.ig-glass {
+            border-color: rgba(225, 48, 108, 0.3);
+            box-shadow: 0 15px 40px rgba(225, 48, 108, 0.2);
+        }
+
+        .social-link span {
+            display: block;
+            margin-top: 15px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #888;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .social-link:hover span {
+            color: #fff;
+            transform: translateY(5px);
+        }
+
+        footer {
+            padding: 40px;
+            text-align: center;
+            font-size: 10px;
+            color: #555;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* --- MOBILE RESPONSIVE --- */
+        @media (max-width: 768px) {
+            nav {
+                padding: 20px 5%;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .hero {
+                padding: 0 5%;
+                justify-content: center;
+                text-align: center;
+            }
+
+            .hero-content {
+                margin-top: 0;
+            }
+
+            .hero h1 {
+                font-size: 48px;
+            }
+
+            section {
+                padding: 80px 5%;
+            }
+
+            .section-header h2 {
+                font-size: 32px;
+            }
+
+            .intel-container {
+                padding: 30px;
+            }
+
+            .contact-cta {
+                gap: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- (Redundant SVG defs for gradient) -->
+    <svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
+        <linearGradient id="ig-gradient" x1="100%" x2="0%" y1="0%" y2="100%">
+            <stop offset="0%" stop-color="#833ab4" />
+            <stop offset="50%" stop-color="#fd1d1d" />
+            <stop offset="100%" stop-color="#fcb045" />
+        </linearGradient>
+    </svg>
+
+    <div id="cursor-dot"></div>
+    <div id="cursor-outline"></div>
+
+    <div class="mobile-menu">
+        <a href="#services">Services</a>
+        <a href="#intel">Growth Intel</a>
+        <a href="#arsenal">The Arsenal</a>
+        <a href="#contact">Consult</a>
+    </div>
+
+    <nav>
+        <div class="nav-logo">
+            <img src="assets/favicon.png" alt="360 View Digital Logo">
+        </div>
+        <div class="hamburger">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+        <div class="nav-links">
+            <a href="#services">Services</a>
+            <a href="#intel">Growth Intel</a>
+            <a href="#arsenal">The Arsenal</a>
+            <a href="#contact">Consult</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div id="canvas3d"></div>
+        <div class="hero-content">
+            <p
+                style="color:var(--bright-red); font-weight:700; letter-spacing:6px; margin-bottom:20px; font-size: 12px;">
+                360 VIEW DIGITAL</p>
+            <h1>WE DON'T FOLLOW TRENDS <br><span class="red-gradient-text">WE CREATE ONE!</span></h1>
+            <p style="max-width: 500px; color: #aaa; margin: 0 auto 40px auto; font-size: 16px;">Attention is the most
+                valuable currency. We don't just find your audience; we build an ecosystem they never want to leave.</p>
+        </div>
+    </header>
+
+    <section id="services">
+        <div class="section-header">
+            <p>01. Our Methodology</p>
+            <h2>Growth Services</h2>
+        </div>
+        <div class="services-grid">
+            <div class="service-card">
+                <h3>High-Retention Ads</h3>
+                <p>Cinematic performance marketing shot on RED systems, optimized for the first 1.5 seconds to kill the
+                    scroll.</p>
+            </div>
+            <div class="service-card">
+                <h3>Algorithmic SEO</h3>
+                <p>We optimize for AI search engines and semantic intent to ensure you're the first answer provided.</p>
+            </div>
+            <div class="service-card">
+                <h3>AI Sales Funnels</h3>
+                <p>Automated conversational workflows that nurture leads from "Stranger" to "Client" while you sleep.
+                </p>
+            </div>
+            <div class="service-card">
+                <h3>Brand Identity</h3>
+                <p>Visual systems designed for the premium sector. We build the "Luxury" feel into every pixel.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="intel" style="background:#020202;">
+        <div class="section-header">
+            <p>02. Strategic Insight</p>
+            <h2>The Marketing Shift</h2>
+        </div>
+        <div class="intel-container">
+            <div class="intel-item">
+                <h4><span>//</span> Organic Is Not Dead</h4>
+                <p style="color:#777;">In 2026, organic reach acts as your "Social Proof." We use viral mechanics to
+                    lower your paid acquisition costs by 40%.</p>
+            </div>
+            <div class="intel-item">
+                <h4><span>//</span> Data Over Instinct</h4>
+                <p style="color:#777;">Every frame of our videos is heat-mapped. If users drop off at second 5, we
+                    re-edit. We optimize for the human eye.</p>
+            </div>
+            <div class="intel-item">
+                <h4><span>//</span> The 360 Ecosystem</h4>
+                <p style="color:#777;">A single ad is a billboard. An ecosystem is a machine. We link your socials,
+                    email, and web into one automated loop.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="arsenal">
+        <style>
+            .gear-card:hover {
+                box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+                border-color: var(--bright-red);
+            }
+        </style>
+        <div class="section-header">
+            <p>03. Production Grade</p>
+            <h2>The Arsenal</h2>
+        </div>
+        <!-- Changed to Flex to center the last row of 2 items -->
+        <div class="gear-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px;">
+            <!-- 1. OPTICS -->
+            <div class="gear-card" style="flex: 1 1 300px; max-width: 400px;">
+                <!-- DSLR Camera -->
+                <img src="assets/camera.png" class="gear-img" alt="SonyAlpha">
+                <div style="position:absolute; bottom:20px; left:20px; z-index:2;">
+                    <div
+                        style="color:var(--bright-red); font-size:10px; font-weight:700; letter-spacing:1px; margin-bottom:5px;">
+                        OPTICS</div>
+                    <div style="color:#fff; font-family:'Lexend'; font-size:18px;">SonyAlpha</div>
+                </div>
+            </div>
+
+            <!-- 2. AERIAL -->
+            <div class="gear-card" style="flex: 1 1 300px; max-width: 400px;">
+                <!-- Drone -->
+                <img src="assets/drone.png" class="gear-img" alt="Drone">
+                <div style="position:absolute; bottom:20px; left:20px; z-index:2;">
+                    <div
+                        style="color:var(--bright-red); font-size:10px; font-weight:700; letter-spacing:1px; margin-bottom:5px;">
+                        AERIAL</div>
+                    <div style="color:#fff; font-family:'Lexend'; font-size:18px;">Drone</div>
+                </div>
+            </div>
+
+            <!-- 3. ACOUSTICS -->
+            <div class="gear-card" style="flex: 1 1 300px; max-width: 400px;">
+                <!-- Sony Mic -->
+                <img src="assets/mic.png" class="gear-img" alt="Sony Mic">
+                <div style="position:absolute; bottom:20px; left:20px; z-index:2;">
+                    <div
+                        style="color:var(--bright-red); font-size:10px; font-weight:700; letter-spacing:1px; margin-bottom:5px;">
+                        ACOUSTICS</div>
+                    <div style="color:#fff; font-family:'Lexend'; font-size:18px;">SONY C-800G</div>
+                </div>
+            </div>
+
+            <!-- 4. POST-PRODUCTION -->
+            <div class="gear-card" style="flex: 1 1 300px; max-width: 400px;">
+                <!-- MacBook Pro -->
+                <img src="assets/macbook.png" class="gear-img" alt="MacBook Pro">
+                <div style="position:absolute; bottom:20px; left:20px; z-index:2;">
+                    <div
+                        style="color:var(--bright-red); font-size:10px; font-weight:700; letter-spacing:1px; margin-bottom:5px;">
+                        POST-PRODUCTION</div>
+                    <div style="color:#fff; font-family:'Lexend'; font-size:18px;">MACBOOK PRO M4</div>
+                </div>
+            </div>
+
+            <!-- 5. ECOSYSTEM -->
+            <div class="gear-card" style="flex: 1 1 300px; max-width: 400px;">
+                <!-- iPhone 17 Pro -->
+                <img src="assets/iphone.png" class="gear-img" alt="iPhone 16 Pro">
+                <div style="position:absolute; bottom:20px; left:20px; z-index:2;">
+                    <div
+                        style="color:var(--bright-red); font-size:10px; font-weight:700; letter-spacing:1px; margin-bottom:5px;">
+                        ECOSYSTEM</div>
+                    <div style="color:#fff; font-family:'Lexend'; font-size:18px;">IPHONE 16 PRO</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" style="text-align:center;">
+        <div class="section-header">
+            <p>04. Connection</p>
+            <h2>Execute Strategy</h2>
+        </div>
+        <div class="contact-cta">
+            <a href="https://wa.me/919514826261" target="_blank" class="social-link">
+                <div class="icon-glass wa-glass">
+                    <svg class="wa-icon" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232" />
+                    </svg>
+                </div>
+                <span>Direct Line</span>
+            </a>
+            <a href="https://www.instagram.com/360view.__" target="_blank" class="social-link">
+                <div class="icon-glass ig-glass">
+                    <svg class="ig-icon" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.486-.276a2.478 2.478 0 0 1-.919-.598 2.48 2.48 0 0 1-.599-.919c-.11-.281-.24-.705-.275-1.485-.038-.843-.047-1.096-.047-3.232 0-2.136.009-2.388.047-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92a2.546 2.546 0 0 1 .919-.599c.281-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z" />
+                    </svg>
+                </div>
+                <span>Portfolio</span>
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        © 2026 360 VIEW DIGITAL. SCALING WITHOUT LIMITS.
+    </footer>
+
+    <script>
+        // --- CURSOR ---
+        const dot = document.getElementById('cursor-dot');
+        const outline = document.getElementById('cursor-outline');
+
+        window.addEventListener('mousemove', (e) => {
+            dot.style.left = `${e.clientX}px`;
+            dot.style.top = `${e.clientY}px`;
+
+            outline.animate({
+                left: `${e.clientX - 15}px`, // Center the 30px div
+                top: `${e.clientY - 15}px`
+            }, { duration: 500, fill: "forwards" });
+        });
+
+        document.querySelectorAll('a, .service-card, .gear-card, .hamburger').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                outline.style.transform = 'scale(2)';
+                outline.style.borderColor = 'rgba(255,255,255,0.8)';
+                dot.style.opacity = '0';
+            });
+            el.addEventListener('mouseleave', () => {
+                outline.style.transform = 'scale(1)';
+                outline.style.borderColor = 'var(--bright-red)';
+                dot.style.opacity = '1';
+            });
+        });
+
+        // --- MOBILE MENU ---
+        const hamburger = document.querySelector('.hamburger');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-menu a');
+
+        hamburger.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
+            hamburger.children[0].style.transform = mobileMenu.classList.contains('active') ? 'rotate(45deg) translate(5px, 5px)' : 'none';
+            hamburger.children[1].style.opacity = mobileMenu.classList.contains('active') ? '0' : '1';
+            hamburger.children[2].style.transform = mobileMenu.classList.contains('active') ? 'rotate(-45deg) translate(5px, -5px)' : 'none';
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                hamburger.children[0].style.transform = 'none';
+                hamburger.children[1].style.opacity = '1';
+                hamburger.children[2].style.transform = 'none';
+            });
+        });
+
+        // --- SCROLL ANIMATIONS ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // --- THREE.JS BACKGROUND ---
+        // Simple Particle Network Animation
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas3d').appendChild(renderer.domElement);
+
+        // Particles
+        const geometry = new THREE.BufferGeometry();
+        const particlesCount = 700;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for (let i = 0; i < particlesCount * 3; i++) {
+            // Spread particles in a wide area
+            posArray[i] = (Math.random() - 0.5) * 15;
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+        const material = new THREE.PointsMaterial({
+            size: 0.025, // small dots
+            color: 0xff0000, // Red
+            transparent: true,
+            opacity: 0.8,
+        });
+
+        const particlesMesh = new THREE.Points(geometry, material);
+        scene.add(particlesMesh);
+
+        // Connecting Lines (Optional - can be heavy, keeping it simple for now as per "Network" concept)
+        // Creating a mesh structure instead for the "CGI" feel
+        const geo2 = new THREE.IcosahedronGeometry(3, 1);
+        const mat2 = new THREE.MeshBasicMaterial({
+            color: 0xaa0000,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.15
+        });
+        const wireframeSphere = new THREE.Mesh(geo2, mat2);
+        scene.add(wireframeSphere);
+
+        camera.position.z = 5;
+
+        // Mouse interaction
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = event.clientX / window.innerWidth - 0.5;
+            mouseY = event.clientY / window.innerHeight - 0.5;
+        });
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            // Rotate entire system
+            particlesMesh.rotation.y = elapsedTime * 0.05;
+            particlesMesh.rotation.x = mouseY * 0.5;
+
+            wireframeSphere.rotation.x += 0.002;
+            wireframeSphere.rotation.y += 0.002;
+
+            // Parallax effect
+            camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY * 0.5 - camera.position.y) * 0.05;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+    </script>
+</body>
+
+</html>
