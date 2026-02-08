@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>360 View | Scaling Without Limits</title>
+    <link rel="icon" type="image/png" href="Favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Lexend:wght@800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .splash-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .splash-logo {
+            width: 120px;
+            margin-bottom: 40px;
+            filter: drop-shadow(0 0 30px rgba(255, 0, 0, 0.6));
+            animation: pulse-glow 3s infinite alternate;
+        }
+
+        .splash-title {
+            font-family: 'Lexend', sans-serif;
+            font-size: clamp(40px, 8vw, 80px);
+            text-transform: uppercase;
+            line-height: 1;
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+        }
+
+        .splash-tagline {
+            color: #888;
+            font-size: 14px;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-bottom: 60px;
+        }
+
+        .enter-btn {
+            padding: 20px 60px;
+            border: 1px solid var(--bright-red);
+            color: #fff;
+            text-decoration: none;
+            font-family: 'Lexend', sans-serif;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            transition: 0.4s;
+            position: relative;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .enter-btn:hover {
+            background: var(--bright-red);
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.4);
+            transform: scale(1.05);
+            color: #000;
+        }
+
+        .scroll-msg {
+            margin-top: 30px;
+            font-family: 'Lexend', sans-serif;
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            animation: fade-pulse 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.4));
+                transform: scale(1);
+            }
+
+            100% {
+                filter: drop-shadow(0 0 60px rgba(255, 0, 0, 0.9));
+                transform: scale(1.02);
+            }
+        }
+
+        @keyframes fade-pulse {
+
+            0%,
+            100% {
+                opacity: 0.2;
+                transform: translateY(0);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: translateY(5px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cursor-dot"></div>
+    <div id="cursor-outline"></div>
+
+    <div id="splash-canvas"></div>
+
+    <div class="splash-container">
+        <img src="assets/favicon.png" alt="360 View Logo" class="splash-logo">
+        <h1 class="splash-title">360 View <span class="red-gradient-text">Digital</span></h1>
+        <p class="splash-tagline">Scaling Without Limits</p>
+
+        <a href="360View.html" class="enter-btn">Enter Site</a>
+        <p class="scroll-msg">Keep Scrolling to Enter</p>
+    </div>
+
+    <script src="splash-animation.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Scroll to Enter Functionality
+        let scrolled = false;
+
+        function navigateToSite() {
+            if (scrolled) return;
+            scrolled = true;
+            document.body.style.transition = 'opacity 0.8s ease';
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                window.location.href = '360View.html';
+            }, 800);
+        }
+
+        window.addEventListener('wheel', (e) => {
+            if (e.deltaY > 30) {
+                navigateToSite();
+            }
+        });
+
+        let touchStart = 0;
+        window.addEventListener('touchstart', (e) => {
+            touchStart = e.touches[0].clientY;
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (touchStart - e.touches[0].clientY > 50) {
+                navigateToSite();
+            }
+        });
+    </script>
+</body>
+
+</html>

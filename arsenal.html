@@ -4,20 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>360 View | Growth Hacking & Cinematic Marketing</title>
+    <title>The Arsenal | 360 View</title>
     <link rel="icon" type="image/png" href="Favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Lexend:wght@800&display=swap"
         rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Specific page overrides if any */
+        .arsenal-hero {
+            height: 60vh;
+            min-height: 400px;
+        }
+
+        /* Arsenal Page Specific Overrides */
+        .gear-card:hover {
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+            border-color: var(--bright-red);
+        }
     </style>
 </head>
 
 <body>
-    <!-- (Redundant SVG defs for gradient) -->
+    <!-- Gradient Defs -->
     <svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
         <linearGradient id="ig-gradient" x1="100%" x2="0%" y1="0%" y2="100%">
             <stop offset="0%" stop-color="#833ab4" />
@@ -34,7 +42,7 @@
         <a href="marketing.html">Marketing</a>
         <a href="ads.html">Ads</a>
         <a href="arsenal.html">The Arsenal</a>
-        <a href="#contact">Consult</a>
+        <a href="360View.html#contact">Consult</a>
     </div>
 
     <nav>
@@ -50,79 +58,96 @@
             <a href="360View.html">Home</a>
             <a href="marketing.html">Marketing</a>
             <a href="ads.html">Ads</a>
-            <a href="arsenal.html">The Arsenal</a>
-            <a href="#contact">Consult</a>
+            <a href="arsenal.html" style="color: var(--bright-red);">The Arsenal</a>
+            <a href="360View.html#contact">Consult</a>
         </div>
     </nav>
 
-    <header class="hero">
+    <header class="hero arsenal-hero">
         <div id="canvas3d"></div>
         <div class="hero-content">
             <p
                 style="color:var(--bright-red); font-weight:700; letter-spacing:6px; margin-bottom:20px; font-size: 12px;">
-                360 VIEW DIGITAL</p>
-            <h1>WE DON'T FOLLOW TRENDS <br><span class="red-gradient-text">WE CREATE ONE!</span></h1>
-            <p style="max-width: 500px; color: #aaa; margin: 0 auto 40px auto; font-size: 16px;">Attention is the most
-                valuable currency. We don't just find your audience; we build an ecosystem they never want to leave.</p>
+                Production Grade</p>
+            <h1>The <span class="red-gradient-text">Arsenal</span></h1>
+            <p style="max-width: 600px; color: #aaa; margin: 0 auto; font-size: 16px;">
+                We don't rely on luck. We rely on heavy artillery. Our gear is standard issue for cinema production.
+            </p>
         </div>
     </header>
 
-    <section id="services">
+    <section id="arsenal">
         <div class="section-header">
-            <p>01. Our Methodology</p>
-            <h2>Growth Services</h2>
+            <p>01. Equipment</p>
+            <h2>Gear List</h2>
         </div>
-        <div class="services-grid">
-            <div class="service-card" onclick="window.location.href='ads.html'" style="cursor: pointer;">
-                <h3>High-Retention Ads</h3>
-                <p>Cinematic performance marketing shot on RED systems, optimized for the first 1.5 seconds to kill the
-                    scroll.</p>
+        <!-- Changed to Flex to center the last row of 2 items -->
+        <div class="gear-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px;">
+            <!-- 1. OPTICS -->
+            <div class="gear-card" style="flex: 1 1 300px; max-width: 400px;">
+                <!-- DSLR Camera -->
+                <img src="assets/camera.png" class="gear-img" alt="SonyAlpha">
+                <div style="position:absolute; bottom:20px; left:20px; z-index:2;">
+                    <div
+                        style="color:var(--bright-red); font-size:10px; font-weight:700; letter-spacing:1px; margin-bottom:5px;">
+                        OPTICS</div>
+                    <div style="color:#fff; font-family:'Lexend'; font-size:18px;">CINEMA LINE CAMERA</div>
+                </div>
             </div>
-            <div class="service-card" onclick="window.location.href='marketing.html'" style="cursor: pointer;">
-                <h3>Algorithmic SEO</h3>
-                <p>We optimize for AI search engines and semantic intent to ensure you're the first answer provided.</p>
+
+            <!-- 2. AERIAL -->
+            <div class="gear-card" style="flex: 1 1 300px; max-width: 400px;">
+                <!-- Drone -->
+                <img src="assets/drone.png" class="gear-img" alt="Drone">
+                <div style="position:absolute; bottom:20px; left:20px; z-index:2;">
+                    <div
+                        style="color:var(--bright-red); font-size:10px; font-weight:700; letter-spacing:1px; margin-bottom:5px;">
+                        AERIAL</div>
+                    <div style="color:#fff; font-family:'Lexend'; font-size:18px;">DRONE</div>
+                </div>
             </div>
-            <div class="service-card" onclick="window.location.href='marketing.html'" style="cursor: pointer;">
-                <h3>AI Sales Funnels</h3>
-                <p>Automated conversational workflows that nurture leads from "Stranger" to "Client" while you sleep.
-                </p>
+
+            <!-- 3. ACOUSTICS -->
+            <div class="gear-card" style="flex: 1 1 300px; max-width: 400px;">
+                <!-- Sony Mic -->
+                <img src="assets/mic.png" class="gear-img" alt="Sony Mic">
+                <div style="position:absolute; bottom:20px; left:20px; z-index:2;">
+                    <div
+                        style="color:var(--bright-red); font-size:10px; font-weight:700; letter-spacing:1px; margin-bottom:5px;">
+                        ACOUSTICS</div>
+                    <div style="color:#fff; font-family:'Lexend'; font-size:18px;">STUDIO MIC</div>
+                </div>
             </div>
-            <div class="service-card">
-                <h3>Brand Identity</h3>
-                <p>Visual systems designed for the premium sector. We build the "Luxury" feel into every pixel.</p>
+
+            <!-- 4. POST-PRODUCTION -->
+            <div class="gear-card" style="flex: 1 1 300px; max-width: 400px;">
+                <!-- MacBook Pro -->
+                <img src="assets/macbook.png" class="gear-img" alt="MacBook Pro">
+                <div style="position:absolute; bottom:20px; left:20px; z-index:2;">
+                    <div
+                        style="color:var(--bright-red); font-size:10px; font-weight:700; letter-spacing:1px; margin-bottom:5px;">
+                        POST-PRODUCTION</div>
+                    <div style="color:#fff; font-family:'Lexend'; font-size:18px;">MACBOOK PRO M4</div>
+                </div>
+            </div>
+
+            <!-- 5. ECOSYSTEM -->
+            <div class="gear-card" style="flex: 1 1 300px; max-width: 400px;">
+                <!-- iPhone 17 Pro -->
+                <img src="assets/iphone.png" class="gear-img" alt="iPhone 16 Pro">
+                <div style="position:absolute; bottom:20px; left:20px; z-index:2;">
+                    <div
+                        style="color:var(--bright-red); font-size:10px; font-weight:700; letter-spacing:1px; margin-bottom:5px;">
+                        ECOSYSTEM</div>
+                    <div style="color:#fff; font-family:'Lexend'; font-size:18px;">IPHONE 16 PRO</div>
+                </div>
             </div>
         </div>
     </section>
-
-    <section id="intel" style="background:#020202;">
-        <div class="section-header">
-            <p>02. Strategic Insight</p>
-            <h2>The Marketing Shift</h2>
-        </div>
-        <div class="intel-container">
-            <div class="intel-item">
-                <h4><span>//</span> Organic Is Not Dead</h4>
-                <p style="color:#777;">In 2026, organic reach acts as your "Social Proof." We use viral mechanics to
-                    lower your paid acquisition costs by 40%.</p>
-            </div>
-            <div class="intel-item">
-                <h4><span>//</span> Data Over Instinct</h4>
-                <p style="color:#777;">Every frame of our videos is heat-mapped. If users drop off at second 5, we
-                    re-edit. We optimize for the human eye.</p>
-            </div>
-            <div class="intel-item">
-                <h4><span>//</span> The 360 Ecosystem</h4>
-                <p style="color:#777;">A single ad is a billboard. An ecosystem is a machine. We link your socials,
-                    email, and web into one automated loop.</p>
-            </div>
-        </div>
-    </section>
-
-
 
     <section id="contact" style="text-align:center;">
         <div class="section-header">
-            <p>04. Connection</p>
+            <p>02. Connection</p>
             <h2>Execute Strategy</h2>
         </div>
         <div class="contact-cta">
